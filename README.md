@@ -103,7 +103,7 @@ We evaluate the chat models trained with CLEX on the [LongBench](https://github.
 
 | Model              | Train Length | Avg.  | Single-Document QA | Multi-Document QA | Summarization | Few-shot Learning | Sythetic Task | Code Completion |
 | ------------------ | ------------ | ----- | ------------------ | ----------------- | ------------- | ----------------- | ------------- | --------------- |
-| GPT-3.5-Turbo      | 16k?         | 44.66 | 45.1               | 36.23             | 23.9          | 57.58             | 51            | 54.15           |
+| GPT-3.5-Turbo-16k      | -         | 44.66 | 45.1               | 36.23             | 23.9          | 57.58             | 51            | 54.15           |
 | CodeLLaMA-7B       | 16k          | 33.42 | 32.19              | 21.49             | 20.06         | 57.73             | 8.92          | 60.11           |
 | Vicuna-v1.5-7B     | 16k          | 30.54 | 31.75              | 18.8              | 23.25         | 56.83             | 5.33          | 47.25           |
 | LongChat-v1.5-7B   | 32k          | 31.59 | 28.78              | 20.33             | 22.45         | 50.8              | 13.03         | 54.15           |
