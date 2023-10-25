@@ -99,7 +99,7 @@ Here are the evaluation PPLs of the base models trained with CLEX. We apply trai
 
 ### LongBench
 
-We evaluate the chat models trained with CLEX on the [LongBench](https://github.com/THUDM/LongBench), where the average length of most tasks ranges from 5k to 16k. Except for those marked with † are evaluated by ourselves, the model results are retrieved from the leaderboard of LongBench. ** denotes the method that needs to truncate the input sequence to the train length.
+We evaluate the chat models trained with CLEX on the [LongBench](https://github.com/THUDM/LongBench), where the average length of most tasks ranges from 5k to 16k. Except for those marked with † are evaluated by ourselves, the baselines results are retrieved from the leaderboard of LongBench. ** denotes the method that needs to truncate the input sequence to the train length.
 
 | Model              | Train Length | Avg.  | Single-Document QA | Multi-Document QA | Summarization | Few-shot Learning | Sythetic Task | Code Completion |
 | ------------------ | ------------ | ----- | ------------------ | ----------------- | ------------- | ----------------- | ------------- | --------------- |
