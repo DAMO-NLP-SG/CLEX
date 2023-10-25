@@ -1,0 +1,28 @@
+# Python
+__pycache__
+*.pyc
+*.egg-info
+dist
+.sock
+LongChat
+core-python-*
+# Log
+*.log
+*.json
+
+# Data
+!**/alpaca-data-conversation.json
+
+# Editor
+.idea
+*.swp
+
+# Other
+.DS_Store
+wandb
+data
+transformers
+output
+checkpoints
+tmp
+new_ckpts
