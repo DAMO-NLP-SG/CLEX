@@ -3,7 +3,7 @@ This repo provides the official implementation of our paper "CLEX: Continuous Le
 
 <div style='display:flex; gap: 0.25rem; '>
 <a href='https://huggingface.co/DAMO-NLP-SG'><img src='https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Checkpoint-blue'></a> 
-<a href='https://huggingface.co/DAMO-NLP-SG'><img src='https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Demo-blue'></a>
+<a href='https://huggingface.co/spaces/DAMO-NLP-SG/CLEX-Chat'><img src='https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Demo-blue'></a>
 <a href=''><img src='https://img.shields.io/badge/Paper-PDF-red'></a>
 </div>
 
@@ -13,7 +13,7 @@ This repo provides the official implementation of our paper "CLEX: Continuous Le
 ## Features and Highlights of CLEX
 - **Simple and Clear**: _MINIMAL_ code and architecture changes. Extending context window size of LLMs _WITHOUT_ either recurrent memory caching or sparse attention.
 - **Train Short, Test Long**: _NO_ performance drop on the sequences _4x longer_ than the training ones 
-- **Continuous Length Extrapolation**: Explicitly modeling the continuous-time growth of context window size
+- **Continuous Length Extrapolation**: Explicitly modeling the continuous dynamics of context window size during length extrapolation
 
 ## Model Zoo
 <div align="center">
@@ -121,6 +121,7 @@ We would like to express our gratitude to the following open-sourcing efforts ou
 - [RedPajama-Data](https://github.com/togethercomputer/RedPajama-Data): An Open Source Recipe to Reproduce LLaMA training dataset
 - [Pile](https://pile.eleuther.ai/): An 800GB Dataset of Diverse Text for Language Modeling
 - [PG-19](https://openreview.net/pdf?id=SylKikSYDH) Language Modeling Language Modeling Benchmark
+- [UltraChat](https://github.com/thunlp/UltraChat): Large-scale, Informative, and Diverse Multi-round Dialogue Data, and Models
 
 ## Citation
 If you find our project useful, hope you can star our repo and cite our paper as follows:
