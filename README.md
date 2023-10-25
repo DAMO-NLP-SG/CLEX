@@ -12,7 +12,7 @@ This repo provides the official implementation of our paper "CLEX: Continuous Le
 
 ## Features and Highlights of CLEX
 - **Simple and Clear**: _MINIMAL_ code and architecture changes. Extending context window size of LLMs _WITHOUT_ either recurrent memory caching or sparse attention.
-- **Train Short, Test Long**: _NO_ performance drop on the sequences _4x~8x longer_ than the training ones 
+- **Train Short, Test Long**: _NO_ performance drop on the sequences _4x~8x longer_ than the training ones (see [here](https://github.com/DAMO-NLP-SG/CLEX#language-modelling)). 
 - **Continuous Length Extrapolation**: Explicitly modeling the continuous dynamics of context window size during length extrapolation
 
 ## Model Zoo
@@ -54,8 +54,8 @@ pip install flash-attn==2.0.8 --no-build-isolation
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
 
-tokenizer = AutoTokenizer.from_pretrained("DAMO-NLP-SG/CLEX", trust_remote_code=True)
-model = AutoModelForCausalLM.from_pretrained("DAMO-NLP-SG/CLEX", torch_dtype=torch.bfloat16)
+tokenizer = AutoTokenizer.from_pretrained("DAMO-NLP-SG/CLEX-7B-16K", trust_remote_code=True)
+model = AutoModelForCausalLM.from_pretrained("DAMO-NLP-SG/CLEX-7B-16K", torch_dtype=torch.bfloat16)
 inputs = tokenizer("What is CLEX?", return_tensors="pt")
 sample = model.generate(**inputs, max_length=128)
 print(tokenizer.decode(sample[0]))
@@ -63,9 +63,9 @@ print(tokenizer.decode(sample[0]))
 
 ### Inference with Command Line Interface
 We replicate the command line interface of [FastChat](https://github.com/lm-sys/FastChat) here.
-You can use the command below to enable the streaming chatting upon CLEX. The CLEX-7b-chat-4k supports the input sequence lengths up to 16k. 
+You can use the command below to enable the streaming chatting upon CLEX. The CLEX-7B-Chat-4K supports the input sequence lengths up to 16k. 
 ```bash
-python3 serve/cli.py --model-path DAMO-NLP-SG/CLEX --num-gpu 1
+python3 serve/cli.py --model-path DAMO-NLP-SG/CLEX-7B-Chat-4K --num-gpu 1
 ```
 You can also try our web GUI demo [here]().
 
@@ -93,13 +93,13 @@ Here are the evaluation PPLs of the base models trained with CLEX. We apply trai
 | CL-Scaling | 16k | 24.99 | 5.86 | 5.87 | 10.56 | 41.09 |
 | ALIBI | 4k  | 6.34 | 6.39 | 6.41 | 6.5 | 6.51 |
 | RandomPos | 4k  | 5.88 | >100 | >1000 | >1000 | >1000 |
-| CLEX-7B-4k | 4k  | **5.86** | 5.7 | 5.87 | 14.53 | 30.51 |
-| CLEX-7B-16k | 16k | 5.88 | **5.68** | **5.52** | **5.55** | **5.64** |
+| CLEX-7B-4K | 4k  | **5.86** | 5.7 | 5.87 | 14.53 | 30.51 |
+| CLEX-7B-16K | 16k | 5.88 | **5.68** | **5.52** | **5.55** | **5.64** |
 
 
 ### LongBench
 
-We evaluate the chat models trained with CLEX on the [LongBench](https://github.com/THUDM/LongBench), where the average length of most tasks ranges from 5k to 16k. Except for those marked with † are evaluated by ourselves, the baselines results are retrieved from the leaderboard of LongBench. ** denotes the method that needs to truncate the input sequence to the train length.
+We evaluate the chat models trained with CLEX on the [LongBench](https://github.com/THUDM/LongBench), where the average length of most tasks ranges from 5k to 16k. Except for those marked with † are evaluated by ourselves, the baseline results are retrieved from the leaderboard of LongBench. ** denotes the method that needs to truncate the input sequence to the train length.
 
 | Model              | Train Length | Avg.  | Single-Document QA | Multi-Document QA | Summarization | Few-shot Learning | Sythetic Task | Code Completion |
 | ------------------ | ------------ | ----- | ------------------ | ----------------- | ------------- | ----------------- | ------------- | --------------- |
@@ -118,9 +118,10 @@ We evaluate the chat models trained with CLEX on the [LongBench](https://github.
 ## Acknowledgement
 We would like to express our gratitude to the following open-sourcing efforts our CLEX benefits from:
 - [LLaMA-2](https://github.com/facebookresearch/llama): Open Foundation and Fine-Tuned Chat Models
+- [FastChat](https://github.com/lm-sys/FastChat): An Open Platform for Training, Serving, and Evaluating Large Language Models.
 - [RedPajama-Data](https://github.com/togethercomputer/RedPajama-Data): An Open Source Recipe to Reproduce LLaMA training dataset
 - [Pile](https://pile.eleuther.ai/): An 800GB Dataset of Diverse Text for Language Modeling
-- [PG-19](https://openreview.net/pdf?id=SylKikSYDH) Language Modeling Language Modeling Benchmark
+- [PG-19](https://openreview.net/pdf?id=SylKikSYDH): Language Modeling Language Modeling Benchmark
 - [UltraChat](https://github.com/thunlp/UltraChat): Large-scale, Informative, and Diverse Multi-round Dialogue Data, and Models
 
 ## Citation
