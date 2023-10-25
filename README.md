@@ -93,8 +93,10 @@ Here are the evaluation PPLs of the base models trained with CLEX. We apply trai
 | CL-Scaling | 16k | 24.99 | 5.86 | 5.87 | 10.56 | 41.09 |
 | ALIBI | 4k  | 6.34 | 6.39 | 6.41 | 6.5 | 6.51 |
 | RandomPos | 4k  | 5.88 | >100 | >1000 | >1000 | >1000 |
-| CLEX-7B-4K | 4k  | **5.86** | 5.7 | 5.87 | 14.53 | 30.51 |
-| CLEX-7B-16K | 16k | 5.88 | **5.68** | **5.52** | **5.55** | **5.64** |
+| CLEX-7B-4K | 4k  | 5.86 | 5.7 | 5.87 | 14.53 | 30.51 |
+| CLEX-7B-16K | 16k | 5.88 | 5.68 | 5.52 | 5.55 | 5.64 |
+| CLEX-13B-4k | 4k  | 5.43 | 5.31 | 5.34 | 6.40 | 12.15 |
+
 
 
 ### LongBench
