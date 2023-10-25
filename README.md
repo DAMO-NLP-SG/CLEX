@@ -20,10 +20,10 @@ This repo provides the official implementation of our paper "CLEX: Continuous Le
 
 | Model Name | Model Type | Starting Point | Train Data |Train Length | MAX Test Length | HF Repo |
 |:-----|:-----|:-----------|:-----------|:-----------|:-----------|:------:|
-| CLEX-7B-4K | base | LLaMA-2-7B | [Redpajama-Book](https://huggingface.co/datasets/togethercomputer/RedPajama-Data-1T) | 4K | 16K | [TBD]() |
-| CLEX-7B-Chat-4K | chat | CLEX-7B-4K | [UltraChat](https://github.com/thunlp/UltraChat) | 4K | 16K | [TBD]() |
-| CLEX-7B-16K | base | LLaMA-2-7B | [Redpajama-Book](https://huggingface.co/datasets/togethercomputer/RedPajama-Data-1T) | 16K | 64K | [TBD]() |
-| CLEX-7B-Chat-16K | chat | CLEX-7B-16K | [UltraChat](https://github.com/thunlp/UltraChat) | 16K | 64K | [TBD]() |
+| CLEX-7B-4K | base | LLaMA-2-7B | [Redpajama-Book](https://huggingface.co/datasets/togethercomputer/RedPajama-Data-1T) | 4K | 16K | [link]() |
+| CLEX-7B-Chat-4K | chat | CLEX-7B-4K | [UltraChat](https://github.com/thunlp/UltraChat) | 4K | 16K | [link]() |
+| CLEX-7B-16K | base | LLaMA-2-7B | [Redpajama-Book](https://huggingface.co/datasets/togethercomputer/RedPajama-Data-1T) | 16K | 64K | [link](https://huggingface.co/DAMO-NLP-SG/CLEX-7B-16K) |
+| CLEX-7B-Chat-16K | chat | CLEX-7B-16K | [UltraChat](https://github.com/thunlp/UltraChat) | 16K | 64K | [link](https://huggingface.co/DAMO-NLP-SG/CLEX-7B-Chat-16K) |
 </div>
 
 ## Supported LLMs
@@ -99,22 +99,28 @@ Here are the evaluation PPLs of the base models trained with CLEX. We apply trai
 
 ### LongBench
 
-We evaluate the chat models trained with CLEX on the [LongBench](https://github.com/THUDM/LongBench), where the average length of most tasks ranges from 5k to 16k. Most results of baselines are taken from the original repo. * denotes that it needs to truncate the input sequence within the train length.
+We evaluate the chat models trained with CLEX on the [LongBench](https://github.com/THUDM/LongBench), where the average length of most tasks ranges from 5k to 16k. Except for those marked with †, the model results are retrieved from the leaderboard of LongBench. ** denotes the method that needs to truncate the input sequence to the train length.
 
 | Model              | Train Length | Avg.  | Single-Document QA | Multi-Document QA | Summarization | Few-shot Learning | Sythetic Task | Code Completion |
 | ------------------ | ------------ | ----- | ------------------ | ----------------- | ------------- | ----------------- | ------------- | --------------- |
-| GPT-3.5-Turbo-16k      | -         | 44.66 | 45.1               | 36.23             | 23.9          | 57.58             | 51            | 54.15           |
-| CodeLLaMA-7B       | 16k          | 33.42 | 32.19              | 21.49             | 20.06         | 57.73             | 8.92          | 60.11           |
+| GPT-3.5-Turbo-16K      | -         | 44.66 | 45.1               | 36.23             | 23.9          | 57.58             | 51            | 54.15           |
+| CodeLLaMA-7B<sup>†</sup>       | 16k          | 33.42 | 32.19              | 21.49             | 20.06         | 57.73             | 8.92          | 60.11           |
 | Vicuna-v1.5-7B     | 16k          | 30.54 | 31.75              | 18.8              | 23.25         | 56.83             | 5.33          | 47.25           |
 | LongChat-v1.5-7B   | 32k          | 31.59 | 28.78              | 20.33             | 22.45         | 50.8              | 13.03         | 54.15           |
-| XGen-7B (*)        | 8k           | 24.96 | 22.15              | 18.02             | 19.05         | 47.23             | 4.7           | 38.6            |
-| InternLM-7B (*)    | 8k           | 22.64 | 21.45              | 17.9              | 15.2          | 41.55             | 3.3           | 36.45           |
-| Llama2-7B-chat (*) | 4k           | 26.76 | 21.65              | 18.2              | 18.53         | 49.95             | 4.13          | 48.1            |
+| XGen-7B<sup>**</sup>        | 8k           | 24.96 | 22.15              | 18.02             | 19.05         | 47.23             | 4.7           | 38.6            |
+| InternLM-7B<sup>**</sup>    | 8k           | 22.64 | 21.45              | 17.9              | 15.2          | 41.55             | 3.3           | 36.45           |
+| Llama2-7B-chat<sup>**</sup> | 4k           | 26.76 | 21.65              | 18.2              | 18.53         | 49.95             | 4.13          | 48.1            |
 | Baichuan-13B (ALiBi)       | 4k           | 13.49 | 18.36              | 6.79              | 9.93          | 11.72             | 1.85          | 32.28           |
-| ALiBi-7B-4k        | 4k           | 9.93  | 7.23               | 5.98              | 7.4           | 5.69              | 0.67          | 32.61           |
-| CLEX-7B-Chat-4k         | 4k           | 32.72 | 29.38              | 20.08             | 23.25         | 56.02             | 9.67          | 57.94           |
+| ALiBi-7B-4K<sup>†</sup>        | 4k           | 9.93  | 7.23               | 5.98              | 7.4           | 5.69              | 0.67          | 32.61           |
+| CLEX-7B-Chat-4K         | 4k           | 32.72 | 29.38              | 20.08             | 23.25         | 56.02             | 9.67          | 57.94           |
 
 
+## Acknowledgement
+We would like to express our gratitude to the following open-sourcing efforts our CLEX benefits from:
+- [LLaMA-2](https://github.com/facebookresearch/llama): Open Foundation and Fine-Tuned Chat Models
+- [RedPajama-Data](https://github.com/togethercomputer/RedPajama-Data): An Open Source Recipe to Reproduce LLaMA training dataset
+- [Pile](https://pile.eleuther.ai/): An 800GB Dataset of Diverse Text for Language Modeling
+- [PG-19](https://openreview.net/pdf?id=SylKikSYDH) Language Modeling Language Modeling Benchmark
 
 ## Citation
 If you find our project useful, hope you can star our repo and cite our paper as follows:
