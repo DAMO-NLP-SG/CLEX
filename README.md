@@ -8,7 +8,7 @@ This repo provides the official implementation of our paper "CLEX: Continuous Le
 </div>
 
 ## News
-- [10.25] ðŸš€ðŸš€ Release the code of **CLEX** and the long-context base & chat models trained with CLEX. 
+- [10.25] 🚀🚀 Release the code of **CLEX** and the long-context base & chat models trained with CLEX. 
 
 ## Features and Highlights of CLEX
 - **Simple and Clear**: _MINIMAL_ code and architecture changes. Extending context windown size of LLMs _WITHOUT_ either recurrent memory caching or sparse attention.
