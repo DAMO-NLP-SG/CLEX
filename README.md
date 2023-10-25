@@ -12,7 +12,7 @@ This repo provides the official implementation of our paper "CLEX: Continuous Le
 
 ## Features and Highlights of CLEX
 - **Simple and Clear**: _MINIMAL_ code and architecture changes. Extending context window size of LLMs _WITHOUT_ either recurrent memory caching or sparse attention.
-- **Train Short, Test Long**: _NO_ performance drop on the sequences _4x longer_ than the training ones 
+- **Train Short, Test Long**: _NO_ performance drop on the sequences _4x~8x longer_ than the training ones 
 - **Continuous Length Extrapolation**: Explicitly modeling the continuous dynamics of context window size during length extrapolation
 
 ## Model Zoo
@@ -99,7 +99,7 @@ Here are the evaluation PPLs of the base models trained with CLEX. We apply trai
 
 ### LongBench
 
-We evaluate the chat models trained with CLEX on the [LongBench](https://github.com/THUDM/LongBench), where the average length of most tasks ranges from 5k to 16k. Except for those marked with †, the model results are retrieved from the leaderboard of LongBench. ** denotes the method that needs to truncate the input sequence to the train length.
+We evaluate the chat models trained with CLEX on the [LongBench](https://github.com/THUDM/LongBench), where the average length of most tasks ranges from 5k to 16k. Except for those marked with † are evaluated by ourselves, the model results are retrieved from the leaderboard of LongBench. ** denotes the method that needs to truncate the input sequence to the train length.
 
 | Model              | Train Length | Avg.  | Single-Document QA | Multi-Document QA | Summarization | Few-shot Learning | Sythetic Task | Code Completion |
 | ------------------ | ------------ | ----- | ------------------ | ----------------- | ------------- | ----------------- | ------------- | --------------- |
@@ -110,7 +110,7 @@ We evaluate the chat models trained with CLEX on the [LongBench](https://github.
 | XGen-7B<sup>**</sup>        | 8k           | 24.96 | 22.15              | 18.02             | 19.05         | 47.23             | 4.7           | 38.6            |
 | InternLM-7B<sup>**</sup>    | 8k           | 22.64 | 21.45              | 17.9              | 15.2          | 41.55             | 3.3           | 36.45           |
 | Llama2-7B-chat<sup>**</sup> | 4k           | 26.76 | 21.65              | 18.2              | 18.53         | 49.95             | 4.13          | 48.1            |
-| Baichuan-13B (ALiBi)       | 4k           | 13.49 | 18.36              | 6.79              | 9.93          | 11.72             | 1.85          | 32.28           |
+| Baichuan-13B<sup>†</sup> (ALiBi)       | 4k           | 13.49 | 18.36              | 6.79              | 9.93          | 11.72             | 1.85          | 32.28           |
 | ALiBi-7B-4K<sup>†</sup>        | 4k           | 9.93  | 7.23               | 5.98              | 7.4           | 5.69              | 0.67          | 32.61           |
 | CLEX-7B-Chat-4K         | 4k           | 32.72 | 29.38              | 20.08             | 23.25         | 56.02             | 9.67          | 57.94           |
 
