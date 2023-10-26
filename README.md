@@ -15,16 +15,16 @@ This repo provides the official implementation of our paper "CLEX: Continuous Le
 
 - **Simple and Clear**: _MINIMAL_ code and architecture changes. Only one up-and-down projection layer introduced, _NO_ recurrent memory caching or sparse attention required.
 - **Train Short, Test Long**: _NO_ performance drop on the sequences _4x~8x longer_ than the training ones (see [here](https://github.com/DAMO-NLP-SG/CLEX#language-modelling)). 
-- **Continuous Length Extrapolation**: Explicitly modeling the continuous dynamics of context window size during length extrapolation
+- **Continuous Length Extrapolation**: Explicitly modeling the continuous dynamics of context window size during length extrapolation.
 
 ## Model Zoo
 <div align="center">
 
 | Model Name | Model Type | Starting Point | Train Data |Train Length | MAX Test Length | HF Repo |
 |:-----|:-----|:-----------|:-----------|:-----------|:-----------|:------:|
-| CLEX-7B-4K | base | LLaMA-2-7B | [Redpajama-Book](https://huggingface.co/datasets/togethercomputer/RedPajama-Data-1T) | 4K | 16K | [link]() |
-| CLEX-7B-Chat-4K | chat | CLEX-7B-4K | [UltraChat](https://github.com/thunlp/UltraChat) | 4K | 16K | [link]() |
-| CLEX-7B-16K | base | LLaMA-2-7B | [Redpajama-Book](https://huggingface.co/datasets/togethercomputer/RedPajama-Data-1T) | 16K | 64K | [link](https://huggingface.co/DAMO-NLP-SG/CLEX-7B-16K) |
+| CLEX-7B-4K | base | LLaMA-2-7B | [Redpajama-Book](https://huggingface.co/datasets/togethercomputer/RedPajama-Data-1T) | 4K | 16K | coming soon |
+| CLEX-7B-Chat-4K | chat | CLEX-7B-4K | [UltraChat](https://github.com/thunlp/UltraChat) | 4K | 16K | coming soon |
+| CLEX-7B-16K | base | LLaMA-2-7B | [Redpajama-Book](https://huggingface.co/datasets/togethercomputer/RedPajama-Data-1T) | 16K | 64K | coming soon |
 | CLEX-7B-Chat-16K | chat | CLEX-7B-16K | [UltraChat](https://github.com/thunlp/UltraChat) | 16K | 64K | [link](https://huggingface.co/DAMO-NLP-SG/CLEX-7B-Chat-16K) |
 </div>
 
@@ -47,7 +47,7 @@ git clone https://github.com/DAMO-NLP-SG/CLEX.git
 cd CLEX
 pip install -r requirements.txt
 # install flash-attn separately
-pip install flash-attn==2.0.8 --no-build-isolation
+pip install flash-attn==2.3.2 --no-build-isolation
 ```
 
 ### Code Snippet for Minimal Usage
@@ -69,7 +69,7 @@ You can use the command below to enable the streaming chatting upon CLEX. The CL
 ```bash
 python3 serve/cli.py --model-path DAMO-NLP-SG/CLEX-7B-Chat-4K --num-gpu 1
 ```
-You can also try our web GUI demo [here]().
+<!-- You can also try our web GUI demo [here](). -->
 
 
 
