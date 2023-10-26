@@ -4,14 +4,16 @@ This repo provides the official implementation of our paper "CLEX: Continuous Le
 <div style='display:flex; gap: 0.25rem; '>
 <a href='https://huggingface.co/DAMO-NLP-SG'><img src='https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Checkpoint-blue'></a> 
 <a href='https://huggingface.co/spaces/DAMO-NLP-SG/CLEX-Chat'><img src='https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Demo-blue'></a>
-<a href=''><img src='https://img.shields.io/badge/Paper-PDF-red'></a>
+<a href='https://arxiv.org/pdf/2310.16450.pdf'><img src='https://img.shields.io/badge/Paper-PDF-red'></a>
 </div>
 
 ## News
 - [10.25] 🚀🚀 Release the code of **CLEX** and the long-context base & chat models trained with CLEX. 
 
 ## Features and Highlights of CLEX
-- **Simple and Clear**: _MINIMAL_ code and architecture changes. Extending context window size of LLMs _WITHOUT_ either recurrent memory caching or sparse attention.
+![CLEX_diagram](https://github.com/DAMO-NLP-SG/CLEX/assets/18526640/063ffe34-0116-4759-92bf-e22fc7264cdf)
+
+- **Simple and Clear**: _MINIMAL_ code and architecture changes. Only one up-and-down projection layer introduced, _NO_ recurrent memory caching or sparse attention required.
 - **Train Short, Test Long**: _NO_ performance drop on the sequences _4x~8x longer_ than the training ones (see [here](https://github.com/DAMO-NLP-SG/CLEX#language-modelling)). 
 - **Continuous Length Extrapolation**: Explicitly modeling the continuous dynamics of context window size during length extrapolation
 
@@ -133,8 +135,8 @@ If you find our project useful, hope you can star our repo and cite our paper as
   author = {Chen, Guanzheng and Li, Xin and Meng, Zaiqiao and Liang, Shangsong and Bing, Lidong},
   title = {CLEX: Continuous Length Extrapolation for Large Language Models},
   year = 2023,
-  journal = {arXiv preprint arXiv:xxx},
-  url = {https://arxiv.org/abs/xxx}
+  journal = {arXiv preprint arXiv:2310.16450},
+  url = {https://arxiv.org/abs/2310.16450}
 }
 ```
 
