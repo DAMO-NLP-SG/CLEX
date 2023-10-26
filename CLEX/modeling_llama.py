@@ -32,17 +32,50 @@ from transformers.modeling_utils import PreTrainedModel
 from transformers.utils import add_start_docstrings, add_start_docstrings_to_model_forward, logging, replace_return_docstrings
 from .configuration_clex import CLEXLlamaConfig
 from .clex_layer import LlamaCLEXScalingRotaryEmbedding
-
-
 from einops import rearrange
-from flash_attn.flash_attn_interface import flash_attn_varlen_qkvpacked_func, flash_attn_qkvpacked_func, flash_attn_with_kvcache
-# from flash_attn.flash_attn_interface import flash_attn_unpadded_qkvpacked_func
-from flash_attn.bert_padding import unpad_input, pad_input
+import importlib.metadata
+import importlib.util
 
 
 logger = logging.get_logger(__name__)
 
+def _is_package_available(pkg_name: str, return_version: bool = False) -> Union[Tuple[bool, str], bool]:
+    # Check we're not importing a "pkg_name" directory somewhere but the actual library by trying to grab the version
+    package_exists = importlib.util.find_spec(pkg_name) is not None
+    package_version = "N/A"
+    if package_exists:
+        try:
+            package_version = importlib.metadata.version(pkg_name)
+            package_exists = True
+        except importlib.metadata.PackageNotFoundError:
+            package_exists = False
+        logger.info(f"Detected {pkg_name} version {package_version}")
+    if return_version:
+        return package_exists, package_version
+    else:
+        return package_exists
+
+def is_flash_attn_available():
+    if not _is_package_available("torch", return_version=True):
+        return False
+
+    # Let's add an extra check to see if cuda is available
+    import torch
+
+    return _is_package_available("flash_attn") and torch.cuda.is_available()
+
+if is_flash_attn_available():
+    from flash_attn.flash_attn_interface import flash_attn_varlen_qkvpacked_func, flash_attn_qkvpacked_func, flash_attn_with_kvcache
+    # from flash_attn.flash_attn_interface import flash_attn_unpadded_qkvpacked_func
+    from flash_attn.bert_padding import unpad_input, pad_input
+
+
+
+
 _CONFIG_FOR_DOC = "CLEXLlamaConfig"
+
+
+
 
 
 # Copied from transformers.models.bart.modeling_bart._make_causal_mask
@@ -137,13 +170,13 @@ def rotate_half(x):
     return torch.cat((-x2, x1), dim=-1)
 
 
-def apply_rotary_pos_emb(q, k, cos, sin, position_ids):
+def apply_rotary_pos_emb(q, k, cos, sin, q_len, position_ids):
     # The first two dimensions of cos and sin are always 1, so we can `squeeze` them.
     cos = cos.squeeze(1).squeeze(0)  # [seq_len, dim]
     sin = sin.squeeze(1).squeeze(0)  # [seq_len, dim]
     cos = cos[position_ids].unsqueeze(1)  # [bs, 1, seq_len, dim]
     sin = sin[position_ids].unsqueeze(1)  # [bs, 1, seq_len, dim]
-    q_embed = (q * cos) + (rotate_half(q) * sin)
+    q_embed = (q * cos[:, :, -q_len:, :]) + (rotate_half(q) * sin[:, :, -q_len:, :])
     k_embed = (k * cos) + (rotate_half(k) * sin)
     return q_embed, k_embed
 
@@ -247,19 +280,17 @@ class LlamaAttention(nn.Module):
         value_states = self.v_proj(hidden_states).view(bsz, q_len, self.num_heads, self.head_dim).transpose(1, 2)
 
         kv_seq_len = key_states.shape[-2]
-        if past_key_value is not None:
-            kv_seq_len += past_key_value[0].shape[-2]
-        # [bsz, nh, t, hd]
 
         if past_key_value is not None:
             kv_seq_len += past_key_value[0].shape[-2]
             key_states = torch.cat([past_key_value[0], key_states], dim=2)
         
         if pack_cos_sin is not None:
-            cos, sin = pack_cos_sin
+            cos, sin = pack_cos_sin.to(query_states.device)
         else:
             cos, sin = self.rotary_emb(value_states, seq_len=kv_seq_len)
-        query_states, key_states = apply_rotary_pos_emb(query_states, key_states, cos, sin, position_ids)
+        key_position_ids = torch.arange(kv_seq_len, dtype=torch.long, device=position_ids.device).unsqueeze(0).view(-1, kv_seq_len)
+        query_states, key_states = apply_rotary_pos_emb(query_states, key_states, cos, sin, q_len, key_position_ids)
 
         if past_key_value is not None:
             # reuse k, v, self_attention
@@ -267,12 +298,13 @@ class LlamaAttention(nn.Module):
 
         past_key_value = (key_states, value_states) if use_cache else None
 
+        use_flashatn =  self.config.use_flashattn and is_flash_attn_available()
 
         if self.log_scale:
             log_n = torch.log(torch.tensor(kv_seq_len*1.0)).to(query_states.device, dtype=query_states.dtype) / \
                      torch.log(torch.tensor(self.config.max_position_embeddings)).to(query_states.device, dtype=query_states.dtype)
             query_states = query_states * log_n
-        if query_states.shape[-2] == 1 or query_states.shape[-2] != key_states.shape[-2] or not self.config.use_flashattn:
+        if query_states.shape[-2] == 1 or query_states.shape[-2] != key_states.shape[-2] or use_flashatn:
             attn_weights = torch.matmul(query_states, key_states.transpose(2, 3)) / math.sqrt(self.head_dim)
 
             if attn_weights.size() != (bsz, self.num_heads, q_len, kv_seq_len):
@@ -308,6 +340,7 @@ class LlamaAttention(nn.Module):
                 attn_weights = None
 
             return attn_output, attn_weights, past_key_value
+        # use flash attention
         elif past_key_value is not None:
             output = flash_attn_with_kvcache(
                         query_states.transpose(1, 2),
@@ -614,13 +647,15 @@ class LlamaModel(LlamaPreTrainedModel):
         if inputs_embeds is None:
             inputs_embeds = self.embed_tokens(input_ids)
         # embed positions
-        if attention_mask is None:
-            attention_mask = torch.ones(
-                (batch_size, seq_length_with_past), dtype=torch.bool, device=inputs_embeds.device
-            )
-        attention_mask = self._prepare_decoder_attention_mask(
-            attention_mask, (batch_size, seq_length), inputs_embeds, past_key_values_length
-        )
+        # if attention_mask is None:
+        #     attention_mask = torch.ones(
+        #         (batch_size, seq_length_with_past), dtype=torch.bool, device=inputs_embeds.device
+        #     )
+        # attention_mask = self._prepare_decoder_attention_mask(
+        #     attention_mask, (batch_size, seq_length), inputs_embeds, past_key_values_length
+        # )
+        attention_mask = None
+
 
         hidden_states = inputs_embeds
 
@@ -802,7 +837,6 @@ class LlamaForCausalLM(LlamaPreTrainedModel):
             # Enable model parallelism
             shift_labels = shift_labels.to(shift_logits.device)
             loss = loss_fct(shift_logits, shift_labels)
-
         if not return_dict:
             output = (logits,) + outputs[1:]
             return (loss,) + output if loss is not None else output

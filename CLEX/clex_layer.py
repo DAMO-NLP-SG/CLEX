@@ -86,7 +86,8 @@ class LlamaCLEXScalingRotaryEmbedding(nn.Module):
             freqs = torch.outer(ex_positions.float().squeeze(), scale_inv_freq)
         else:
             scale_inv_freq = torch.exp(solution)
-            freqs = torch.einsum('i, kl -> kil', ex_positions, scale_inv_freq)
+            # freqs = torch.einsum('i, kl -> kil', ex_positions, scale_inv_freq)
+            return scale_inv_freq
         embed = torch.cat((freqs,freqs), dim=-1)
         return embed
 
@@ -122,10 +123,12 @@ class LlamaCLEXScalingRotaryEmbedding(nn.Module):
             cos, sin = embed.cos()[None, None, :, :], embed.sin()[None, None, :, :]
         else:
             if t_val > self.max_t_cached:
-                time_grid = torch.arange(1.0, self.max_t + 1.0, dtype=torch.float32).to(device)
                 if self.freq_cached is None:
+                    time_grid = torch.arange(1.0, self.max_t, dtype=torch.float32).to(device)
                     self.freq_cached = self.get_continuous_freq(time_grid, ex_positions, device)
-                embed = self.freq_cached[int(t_val)-1.0]
+                scale_inv_freq = self.freq_cached[int(t_val-1.0)]
+                freqs = torch.outer(ex_positions.float().squeeze(), scale_inv_freq)
+                embed = torch.cat((freqs,freqs), dim=-1)
                 self.rope_cached = torch.cat((embed.cos()[None, None, None, :, :], embed.sin()[None, None, None, :, :]), dim=0)
                 self.max_t_cached = t_val
             cos, sin = self.rope_cached

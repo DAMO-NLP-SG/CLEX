@@ -288,7 +288,7 @@ class ChatIO(abc.ABC):
 
 
 def get_context_length(config):
-    return config.data_length * 4
+    return config.max_position_embeddings * config.rope_scaling["max_factor"]
 
 
 def chat_loop(
