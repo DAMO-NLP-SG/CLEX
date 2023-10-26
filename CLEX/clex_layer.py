@@ -124,7 +124,7 @@ class LlamaCLEXScalingRotaryEmbedding(nn.Module):
         else:
             if t_val > self.max_t_cached:
                 if self.freq_cached is None:
-                    time_grid = torch.arange(1.0, self.max_t, dtype=torch.float32).to(device)
+                    time_grid = torch.arange(1.0, self.max_t+1.0, dtype=torch.float32).to(device)
                     self.freq_cached = self.get_continuous_freq(time_grid, ex_positions, device)
                 scale_inv_freq = self.freq_cached[int(t_val-1.0)]
                 freqs = torch.outer(ex_positions.float().squeeze(), scale_inv_freq)

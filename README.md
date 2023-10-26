@@ -62,6 +62,15 @@ inputs = tokenizer("What is CLEX?", return_tensors="pt")
 sample = model.generate(**inputs, max_length=128)
 print(tokenizer.decode(sample[0]))
 ```
+This assumes you have installed the [Flash Attention](https://github.com/Dao-AILab/flash-attention). If not, please clone the repo and ```cd CLEX```, while using the code below to load model:
+```bash
+from transformers import AutoTokenizer
+from CLEX import LlamaForCausalLM
+
+tokenizer = AutoTokenizer.from_pretrained("DAMO-NLP-SG/CLEX-7B-16K", trust_remote_code=True)
+model = LlamaForCausalLM.from_pretrained("DAMO-NLP-SG/CLEX-7B-16K", torch_dtype=torch.bfloat16)
+```
+
 
 ### Inference with Command Line Interface
 We replicate the command line interface of [FastChat](https://github.com/lm-sys/FastChat) here.
