@@ -2,8 +2,8 @@
 This repo provides the official implementation of our paper "CLEX: Continuous Length Extrapolation for Large Language Models"
 
 <div style='display:flex; gap: 0.25rem; '>
-<a href='https://huggingface.co/DAMO-NLP-SG'><img src='https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Checkpoint-blue'></a> 
-<a href='https://huggingface.co/spaces/DAMO-NLP-SG/CLEX-Chat'><img src='https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Demo-blue'></a>
+<!-- <a href='https://huggingface.co/DAMO-NLP-SG'><img src='https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Checkpoint-blue'></a>  -->
+<a href=''><img src='https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Demo-blue'></a>
 <a href='https://arxiv.org/pdf/2310.16450.pdf'><img src='https://img.shields.io/badge/Paper-PDF-red'></a>
 </div>
 
