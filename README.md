@@ -3,7 +3,7 @@ This repo provides the official implementation of our paper "CLEX: Continuous Le
 
 <div style='display:flex; gap: 0.25rem; '>
 <!-- <a href='https://huggingface.co/DAMO-NLP-SG'><img src='https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Checkpoint-blue'></a>  -->
-<a href=''><img src='https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Demo-blue'></a>
+<a href='https://huggingface.co/spaces/DAMO-NLP-SG/CLEX-Chat'><img src='https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Demo-blue'></a>
 <a href='https://arxiv.org/pdf/2310.16450.pdf'><img src='https://img.shields.io/badge/Paper-PDF-red'></a>
 </div>
 
@@ -25,7 +25,7 @@ This repo provides the official implementation of our paper "CLEX: Continuous Le
 | CLEX-7B-4K | base | LLaMA-2-7B | [Redpajama-Book](https://huggingface.co/datasets/togethercomputer/RedPajama-Data-1T) | 4K | 16K | coming soon |
 | CLEX-7B-Chat-4K | chat | CLEX-7B-4K | [UltraChat](https://github.com/thunlp/UltraChat) | 4K | 16K | coming soon |
 | CLEX-7B-16K | base | LLaMA-2-7B | [Redpajama-Book](https://huggingface.co/datasets/togethercomputer/RedPajama-Data-1T) | 16K | 64K | coming soon |
-| CLEX-7B-Chat-16K | chat | CLEX-7B-16K | [UltraChat](https://github.com/thunlp/UltraChat) | 16K | 64K | coming soom |
+| CLEX-7B-Chat-16K | chat | CLEX-7B-16K | [UltraChat](https://github.com/thunlp/UltraChat) | 16K | 64K | [link](https://huggingface.co/DAMO-NLP-SG/CLEX-7B-Chat-16K) |
 </div>
 
 ## Supported LLMs
@@ -78,7 +78,7 @@ You can use the command below to enable the streaming chatting upon CLEX. The CL
 ```bash
 python3 serve/cli.py --model-path DAMO-NLP-SG/CLEX-7B-Chat-4K --num-gpu 1
 ```
-<!-- You can also try our web GUI demo [here](). -->
+You can also try our web GUI demo [here](https://huggingface.co/spaces/DAMO-NLP-SG/CLEX-Chat).
 
 
 
