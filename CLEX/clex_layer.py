@@ -43,6 +43,7 @@ class ODELinear(nn.Module):
         return delta_inv_freq
 
 
+
 class LlamaCLEXScalingRotaryEmbedding(nn.Module):
 
     def __init__(self, dim, max_position_embeddings=2048, rope_scaling=None, base=10000, device=None) -> None:
@@ -57,6 +58,8 @@ class LlamaCLEXScalingRotaryEmbedding(nn.Module):
 
         self.proj_func = ODELinear(dim, rope_scaling["param_factor"])
         self.rope_cached = None
+        self.max_t_cached = 0
+        self.freq_cached = None
         self.time_dt = 0.01
         self.ode_args = {
             "method": "rk4",
@@ -77,9 +80,9 @@ class LlamaCLEXScalingRotaryEmbedding(nn.Module):
             self.proj_func, torch.log(self.inv_freq.to(device, dtype=torch.float32)), time_grid, **self.ode_args
         )
         if time_grid.size(0) == 2:
-            # training
+            training
             scale_inv_freq = torch.exp(solution[1])
-            print(time_grid[1].tolist(), torch.sum(scale_inv_freq).tolist(), torch.sum(self.proj_func.ode_down_proj).tolist())
+            # print(time_grid[1].tolist(), torch.sum(scale_inv_freq).tolist(), torch.sum(self.proj_func.ode_down_proj).tolist())
             freqs = torch.outer(ex_positions.float().squeeze(), scale_inv_freq)
         else:
             scale_inv_freq = torch.exp(solution)
@@ -90,6 +93,7 @@ class LlamaCLEXScalingRotaryEmbedding(nn.Module):
 
 
     def forward(self, device, dtype, seq_len, do_train=False):
+        device = self.proj_func.ode_up_proj.device
         scale_factor = seq_len // self.max_position_embeddings
         if do_train:
             t_val = self.sample_random_times(self.max_t+1, device)[0]
@@ -101,8 +105,9 @@ class LlamaCLEXScalingRotaryEmbedding(nn.Module):
                 torch.tensor([seq_len*t_val//scale_factor-1])]
             ).to(device, dtype=torch.float32)
         else:
-            t_val = scale_factor
-            ex_positions = torch.arange(0, seq_len, dtype=torch.float32).to(device)
+            t_val = scale_factor if seq_len%self.max_position_embeddings == 0.0 else scale_factor + 1
+            t_val = t_val if t_val <= self.max_t else self.max_t
+            ex_positions = torch.arange(0, self.max_position_embeddings * t_val, dtype=torch.float32).to(device)
 
 
         
@@ -116,11 +121,14 @@ class LlamaCLEXScalingRotaryEmbedding(nn.Module):
             embed = self.get_continuous_freq(time_grid, ex_positions, device)
             cos, sin = embed.cos()[None, None, :, :], embed.sin()[None, None, :, :]
         else:
-            if self.rope_cached is None:
+            if t_val > self.max_t_cached:
                 time_grid = torch.arange(1.0, self.max_t + 1.0, dtype=torch.float32).to(device)
-                embeds = self.get_continuous_freq(time_grid, ex_positions, device)
-                self.rope_cached = torch.cat((embeds.cos()[:, None, None, None, :, :], embeds.sin()[:, None, None, None, :, :]), dim=1)
-            cos, sin = self.rope_cached[int(t_val - 1.0)]
+                if self.freq_cached is None:
+                    self.freq_cached = self.get_continuous_freq(time_grid, ex_positions, device)
+                embed = self.freq_cached[int(t_val)-1.0]
+                self.rope_cached = torch.cat((embed.cos()[None, None, None, :, :], embed.sin()[None, None, None, :, :]), dim=0)
+                self.max_t_cached = t_val
+            cos, sin = self.rope_cached
         
         return torch.cat(
             (cos[None, :, :, :seq_len, ...].to(dtype=dtype),
