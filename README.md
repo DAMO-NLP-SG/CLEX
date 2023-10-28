@@ -17,7 +17,7 @@ This repo provides the official implementation of our paper "CLEX: Continuous Le
 - **Train Short, Test Long**: _NO_ performance drop on the sequences _4x~8x longer_ than the training ones (see [here](https://github.com/DAMO-NLP-SG/CLEX#language-modelling)). 
 - **Continuous Length Extrapolation**: Explicitly modeling the continuous dynamics of context window size during length extrapolation.
 
-If you have any questions, feel free to contact us. (Email: guanzzh.chen@gmail.com)
+If you have any questions, feel free to contact us. (Emails: {guanzzh.chen, lixin4ever}@gmail.com)
 
 ## Model Zoo
 <div align="center">
