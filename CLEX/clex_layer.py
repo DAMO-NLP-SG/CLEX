@@ -80,7 +80,6 @@ class LlamaCLEXScalingRotaryEmbedding(nn.Module):
             self.proj_func, torch.log(self.inv_freq.to(device, dtype=torch.float32)), time_grid, **self.ode_args
         )
         if time_grid.size(0) == 2:
-            training
             scale_inv_freq = torch.exp(solution[1])
             # print(time_grid[1].tolist(), torch.sum(scale_inv_freq).tolist(), torch.sum(self.proj_func.ode_down_proj).tolist())
             freqs = torch.outer(ex_positions.float().squeeze(), scale_inv_freq)
