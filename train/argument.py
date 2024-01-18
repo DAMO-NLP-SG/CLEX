@@ -22,6 +22,13 @@ class ModelArguments:
             "help": "The ODE up projection factor."
         },
     )
+    clex_act: str = field(
+        default="tanh",
+        choices=["tanh", "silu"],
+        metadata={
+            "help": "The activation function."
+        },
+    )
 
 
 

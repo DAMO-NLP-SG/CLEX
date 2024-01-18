@@ -24,14 +24,19 @@ If you have any questions, feel free to contact us. (Emails: guanzzh.chen@gmail.
 
 | Model Name | Model Type | Starting Point | Train Data |Train Length | MAX Test Length | HF Repo |
 |:-----|:-----|:-----------|:-----------|:-----------|:-----------|:------:|
-| CLEX-7B-4K | base | LLaMA-2-7B | [Redpajama-Book](https://huggingface.co/datasets/togethercomputer/RedPajama-Data-1T) | 4K | 16K | coming soon |
-| CLEX-7B-Chat-4K | chat | CLEX-7B-4K | [UltraChat](https://github.com/thunlp/UltraChat) | 4K | 16K | coming soon |
-| CLEX-7B-16K | base | LLaMA-2-7B | [Redpajama-Book](https://huggingface.co/datasets/togethercomputer/RedPajama-Data-1T) | 16K | 64K | [link](https://huggingface.co/DAMO-NLP-SG/CLEX-7B-16K) |
-| CLEX-7B-Chat-16K | chat | CLEX-7B-16K | [UltraChat](https://github.com/thunlp/UltraChat) | 16K | 64K | [link](https://huggingface.co/DAMO-NLP-SG/CLEX-7B-Chat-16K) |
+| CLEX-LLaMA-2-7B-16K | base | LLaMA-2-7B | [Redpajama-Book](https://huggingface.co/datasets/togethercomputer/RedPajama-Data-1T) | 16K | 64K | [link](https://huggingface.co/DAMO-NLP-SG/CLEX-7B-16K) |
+| CLEX-LLaMA-2-7B-Chat-16K | chat | CLEX-7B-16K | [UltraChat](https://github.com/thunlp/UltraChat) | 16K | 64K | [link](https://huggingface.co/DAMO-NLP-SG/CLEX-7B-Chat-16K) |
+| CLEX-LLaMA-2-7B-64K | base | LLaMA-2-7B | [LongCorpus-2.5B] | 64k | 256K | Pending Upload |
+| CLEX-Phi-2-7B-32K | base | Phi-2-2.7B | [LongCorpus-2.5B] | 32k | 128K | Pending Upload |
+| CLEX-Mixtral-8x7B-32K | base | Mixtral-8x7B-v0.1 | [LongCorpus-2.5B] | 32k | >128K | Pending Upload |
+| CLEX-Mixtral-8x7B-Chat-32k | chat | CLEX-Mixtral-8x7B-32K | [Ultrachat 200k](https://huggingface.co/datasets/HuggingFaceH4/ultrachat_200k) | 32k | >128K | Pending Upload |
 </div>
 
 ## Supported LLMs
 - [x] LLaMA-2
+- [x] Phi-2
+- [x] Mixtral-8x7B
+- [ ] Mistral
 - [ ] Falcon
 - [ ] GPT-NeoX
 - [ ] QWen

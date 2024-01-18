@@ -1,23 +1,32 @@
 import torch
-import torch.nn as nn
+from torch import nn
 from torchdiffeq import  odeint
 
-
+import wandb
 
 import math
+
+
+
 
 class ODELinear(nn.Module):
     def __init__(
         self, 
         dim: int, 
         factor,
+        act,
         **kwargs
     ):
         super().__init__()
-        self.ode_up_proj = nn.Parameter(torch.empty(dim//2, factor*dim).to(torch.float32))
-        self.ode_down_proj = nn.Parameter(torch.empty(factor*dim, dim//2).to(torch.float32))
+        self.ode_up_proj = nn.Parameter(torch.empty(dim//2, factor*dim))
+        self.ode_down_proj = nn.Parameter(torch.empty(factor*dim, dim//2))
         self.dim = dim
-        self.act = torch.nn.SiLU()
+        if act == "tanh":
+            self.act = torch.nn.Tanh()
+        elif act == "silu":
+            self.act = torch.nn.SiLU()
+        else:
+            raise ValueError(f"act must be one of ['tanh', 'silu'], got {act}")
         self.reset_parameters()
 
     def reset_parameters(self):
@@ -36,17 +45,22 @@ class ODELinear(nn.Module):
         return delta_ntk_freq.to(device, dtype=dtype), ntk_inv_freq.to(device, dtype=dtype)
 
     def forward(self, t, x: torch.Tensor):
-        delta_time, time = self.get_time_embedding(t, device=x.device, dtype=x.dtype)
+
+        device = x.device
+        delta_time, time = self.get_time_embedding(t.to(device), device=device, dtype=x.dtype)
         x = x + torch.log(time)
         time_embed = delta_time / time
-        delta_inv_freq = self.act(x @ self.ode_up_proj.float()) @ self.ode_down_proj.float() + time_embed
+        delta_inv_freq = self.act(x @ self.ode_up_proj.float()) @ self.ode_down_proj.float()
+        delta_inv_freq = delta_inv_freq + time_embed
         return delta_inv_freq
+
+
 
 
 
 class LlamaCLEXScalingRotaryEmbedding(nn.Module):
 
-    def __init__(self, dim, max_position_embeddings=2048, rope_scaling=None, base=10000, device=None) -> None:
+    def __init__(self, dim, max_position_embeddings=2048, rope_scaling=None, base=1000000, device=None) -> None:
         super().__init__()
 
         self.max_t = rope_scaling["max_factor"]
@@ -56,22 +70,21 @@ class LlamaCLEXScalingRotaryEmbedding(nn.Module):
         inv_freq = 1.0 / (self.base ** (torch.arange(0, self.dim, 2).float().to(device) / self.dim))
         self.register_buffer("inv_freq", inv_freq)
 
-        self.proj_func = ODELinear(dim, rope_scaling["param_factor"])
+        self.proj_func = ODELinear(dim, rope_scaling["param_factor"], rope_scaling["act"])
         self.rope_cached = None
         self.max_t_cached = 0
         self.freq_cached = None
-        self.time_dt = 0.01
+        self.time_dt = rope_scaling["time_dt"]
         self.ode_args = {
             "method": "rk4",
             "options": {"step_size": self.time_dt},
         }
 
     def sample_random_times(self, max_t, device):
-        return torch.randint(2, max_t, (1,), dtype = torch.long, device=device)
+        return torch.randint(1, max_t, (1,), dtype = torch.long, device=device)
 
     def get_random_position_ids(self, n=2048, max=8192):
         positions = torch.randperm(max)[:n].sort().values
-        # positions = positions.to(device=device)
         return positions
     
 
@@ -81,23 +94,23 @@ class LlamaCLEXScalingRotaryEmbedding(nn.Module):
         )
         if time_grid.size(0) == 2:
             scale_inv_freq = torch.exp(solution[1])
-            # print(time_grid[1].tolist(), torch.sum(scale_inv_freq).tolist(), torch.sum(self.proj_func.ode_down_proj).tolist())
             freqs = torch.outer(ex_positions.float().squeeze(), scale_inv_freq)
         else:
             scale_inv_freq = torch.exp(solution)
-            # freqs = torch.einsum('i, kl -> kil', ex_positions, scale_inv_freq)
             return scale_inv_freq
         embed = torch.cat((freqs,freqs), dim=-1)
         return embed
 
 
 
-    def forward(self, device, dtype, seq_len, do_train=False):
+    def forward(self, input_embeds, seq_len, do_train=False):
         device = self.proj_func.ode_up_proj.device
+        dtype = input_embeds.dtype
         scale_factor = seq_len // self.max_position_embeddings
         if do_train:
             t_val = self.sample_random_times(self.max_t+1, device)[0]
-            import math
+            if scale_factor < 1.0:
+                scale_factor = 1
             sampled_position_ids = self.get_random_position_ids(n=seq_len-2, max=seq_len*t_val-2).float()
             ex_positions = torch.cat([
                 torch.tensor([0]), 
@@ -115,26 +128,25 @@ class LlamaCLEXScalingRotaryEmbedding(nn.Module):
             scale_inv_freq = self.inv_freq.to(device)
             freqs = torch.outer(ex_positions.float().squeeze(), scale_inv_freq)
             embed = torch.cat((freqs,freqs), dim=-1)
-            cos, sin = embed.cos()[None, None, :, :], embed.sin()[None, None, :, :]
+            cos, sin = embed.cos(), embed.sin()
         elif do_train:
             time_grid = torch.tensor([1.0, t_val]).float().to(device)
             embed = self.get_continuous_freq(time_grid, ex_positions, device)
-            cos, sin = embed.cos()[None, None, :, :], embed.sin()[None, None, :, :]
+            cos, sin = embed.cos(), embed.sin()
         else:
-            if t_val > self.max_t_cached:
-                if self.freq_cached is None:
-                    time_grid = torch.arange(1.0, self.max_t+1.0, dtype=torch.float32).to(device)
-                    self.freq_cached = self.get_continuous_freq(time_grid, ex_positions, device)
+            if self.freq_cached is None:
+                time_grid = torch.arange(1.0, self.max_t+1.0, dtype=torch.float32).to(device)
+                self.freq_cached = self.get_continuous_freq(time_grid, ex_positions, device)
+            if t_val != self.max_t_cached:
                 scale_inv_freq = self.freq_cached[int(t_val-1.0)]
                 freqs = torch.outer(ex_positions.float().squeeze(), scale_inv_freq)
                 embed = torch.cat((freqs,freqs), dim=-1)
-                self.rope_cached = torch.cat((embed.cos()[None, None, None, :, :], embed.sin()[None, None, None, :, :]), dim=0)
+                self.rope_cached = torch.cat((embed.cos()[None, :, :], embed.sin()[None, :, :]), dim=0)
                 self.max_t_cached = t_val
             cos, sin = self.rope_cached
-        
         return torch.cat(
-            (cos[None, :, :, :seq_len, ...].to(dtype=dtype),
-            sin[None, :, :, :seq_len, ...].to(dtype=dtype)),
+            (cos[None, :seq_len].to(dtype=dtype),
+            sin[None, :seq_len].to(dtype=dtype)),
             dim=0
         )
     

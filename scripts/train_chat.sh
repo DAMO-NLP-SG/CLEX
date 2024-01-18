@@ -1,31 +1,30 @@
-torchrun --nproc_per_node=4 \
+torchrun --nproc_per_node=8 \
 --master_port=2349 \
-train/train_chat.py \
-    --model_name_or_path /mnt/workspace/ckpts/CLEX-7b-base-16k  \
-    --data_path /mnt/workspace/data/ShareGPT_Vicuna_unfiltered/ultrachat_split_16k_grouped.json \
+train/train_lm.py \
+    --model_name_or_path /path/to/clexmodel  \
+    --data_path /path/to/sft_data \
     --bf16 True \
     --output_dir /path/to/save_dir \
     --num_train_epochs 1 \
-    --per_device_train_batch_size 2 \
+    --per_device_train_batch_size 16 \
     --per_device_eval_batch_size 1 \
     --gradient_accumulation_steps 4 \
     --evaluation_strategy "no" \
     --save_strategy "steps" \
-    --save_steps 250 \
+    --save_steps 200 \
     --save_total_limit 10 \
+    --max_steps xxx \
     --learning_rate 2e-5 \
     --weight_decay 0. \
     --warmup_ratio 0.03 \
     --lr_scheduler_type "cosine" \
     --logging_steps 1 \
     --tf32 True \
-    --model_max_length 16384 \
+    --model_max_length 4096 \
     --gradient_checkpointing True \
     --ddp_find_unused_parameters True \
-    --fsdp "full_shard auto_wrap" \
-    --fsdp_transformer_layer_cls_to_wrap 'LlamaDecoderLayer' \
-    --lazy_preprocess True \
     --do_train True \
     --do_eval False \
     --do_predict True \
-    --log_scale False
+    --log_scale False \
+    --deepspeed playground/deepspeed_zero3_offload.json
