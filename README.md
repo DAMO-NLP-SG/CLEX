@@ -106,16 +106,18 @@ To train the long-context LLM with CLEX, run the script `scripts/train_lm.sh` as
 ```
 For training the chat model, run the script `scripts/train_chat.sh` instead.
 
-Note that we use a on-the-fly tokenization, which supports any desired training length without pre-tokenizing. So if you use a learning rate scheduler (e.g., cosine), you may need to specify the arg `max_steps` in the training arguments (You can estimate it depending on training data size).
+Note that we use an on-the-fly tokenization, which supports any desired training length without pre-tokenizing. So if you use a learning rate scheduler (e.g., cosine), you may need to specify the arg `max_steps` in the training arguments (You can estimate it depending on training data size).
 
 ## Customization
-We now support LLaMA-2, Phi-2, and Mixtral-8x7B. If you want to customize your LLM equpped with RoPE, please follow three steps:
-1. 
+We now support LLaMA-2, Phi-2, and Mixtral-8x7B. If you want to customize your LLM equipped with RoPE, please follow three steps:
+1. Init the CLEX layer and acquire the packed cos and sin embeddings of CLEX-scaled RoPE.
+2. Pass the cos and sin embeddings to the attention layer.
+3. Move the update of `past_key_value` **before** applying the RoPE. This ensures all keys would be rotated by the same cos and sin embedding.
 
 
 ## Evaluation
 ### Language Modelling
-Here are the evaluation PPLs of the base models trained with CLEX. We apply training and evaluation on a subset of 2B tokens from the [RedPajama-Book](https://github.com/togethercomputer/RedPajama-Data) corpus, where the training and test sets are splitted by 99:1.
+Here are the evaluation PPLs of the base models trained with CLEX. We apply training and evaluation on a subset of 2B tokens from the [RedPajama-Book](https://github.com/togethercomputer/RedPajama-Data) corpus, where the training and test sets are split by 99:1.
 
 | Models | Train Length | Eval.(4k) | Eval.(8k) | Eval.(16k) | Eval.(32k) | Eval.(64k) |
 | --- | --- | --- | --- | --- | --- | --- |
