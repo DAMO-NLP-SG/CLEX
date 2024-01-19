@@ -66,7 +66,7 @@ if is_torch_fx_available():
 
 
 from .configuration_llama_clex import CLEXLlamaConfig
-from ..clex_layer import LlamaCLEXScalingRotaryEmbedding
+from ..clex_layer import CLEXScalingRotaryEmbedding
 
 
 logger = logging.get_logger(__name__)
@@ -1024,7 +1024,7 @@ class LlamaModel(LlamaPreTrainedModel):
         self.post_init()
         head_dim = config.hidden_size // config.num_attention_heads
         if config.rope_scaling["type"] == "clex":
-            self.clex_layer = LlamaCLEXScalingRotaryEmbedding(head_dim, config.max_position_embeddings, config.rope_scaling)
+            self.clex_layer = CLEXScalingRotaryEmbedding(head_dim, config.max_position_embeddings, config.rope_scaling)
 
 
     def get_input_embeddings(self):

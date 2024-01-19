@@ -8,7 +8,9 @@ This repo provides the official implementation of our paper "CLEX: Continuous Le
 </div>
 
 ## News
-- [10.25] 🚀🚀 Release the code of **CLEX** and the long-context base & chat models trained with CLEX. 
+- [2024.1.19] 🔥 Release the CLEX-Mixtral-8x7B-32K, CLEX-LLaMA-2-7B-64K, and CLEX-Phi-2-7B-32K (and refactor the codes to support different models), which all support more than 100k context length! 
+- [2024.1.16] 🌟 CLEX has been accepted to ICLR 2024!
+- [2023.10.25] 🚀 Release the code of **CLEX** and the long-context base & chat models trained with CLEX. 
 
 ## Features and Highlights of CLEX
 ![CLEX_diagram](https://github.com/DAMO-NLP-SG/CLEX/assets/18526640/063ffe34-0116-4759-92bf-e22fc7264cdf)
@@ -54,7 +56,7 @@ git clone https://github.com/DAMO-NLP-SG/CLEX.git
 cd CLEX
 pip install -r requirements.txt
 # install flash-attn separately
-pip install flash-attn==2.3.2 --no-build-isolation
+pip install flash-attn --no-build-isolation
 ```
 
 ### Code Snippet for Minimal Usage
@@ -69,14 +71,7 @@ inputs = tokenizer("What is CLEX?", return_tensors="pt")
 sample = model.generate(**inputs, max_length=128)
 print(tokenizer.decode(sample[0]))
 ```
-This assumes you have installed the [Flash Attention](https://github.com/Dao-AILab/flash-attention). If not, please clone the repo and ```cd CLEX```, while using the code below to load model:
-```bash
-from transformers import AutoTokenizer
-from CLEX import LlamaForCausalLM
 
-tokenizer = AutoTokenizer.from_pretrained("DAMO-NLP-SG/CLEX-7B-16K", trust_remote_code=True)
-model = LlamaForCausalLM.from_pretrained("DAMO-NLP-SG/CLEX-7B-16K", torch_dtype=torch.bfloat16)
-```
 
 
 ### Inference with Command Line Interface
@@ -88,13 +83,35 @@ python3 serve/cli.py --model-path DAMO-NLP-SG/CLEX-7B-Chat-4K --num-gpu 1
 You can also try our web GUI demo [here](https://huggingface.co/spaces/DAMO-NLP-SG/CLEX-Chat).
 
 
+## LongCorpus-2.5B
+We collect a 2.5B training dataset from various domains for long-context continual pre-training. The composition of this dataset is as follows (partially inspired by [Long-Data-Collection](https://huggingface.co/datasets/togethercomputer/Long-Data-Collections)):
+
+| Domain        | Proportion | Source |
+| ------------- | ---------- | ------ |
+| Book          | 40%        | [Redpajama-Book](https://huggingface.co/datasets/togethercomputer/RedPajama-Data-1T)   |
+| Arxiv         | 20%        | [Redpajama-Arxiv](https://huggingface.co/datasets/togethercomputer/RedPajama-Data-1T)    |
+| General       | 20%        | [Redpajama](https://huggingface.co/datasets/togethercomputer/RedPajama-Data-1T)    |
+| Code          | 10%        | [LCC-Python](https://huggingface.co/datasets/microsoft/LCC_python)    |
+| QA            | 5%         | [Natural Questions](https://ai.google.com/research/NaturalQuestions/)   |
+| Summarization | 5%         | [BookSum](https://github.com/salesforce/booksum)   |
+
+We have also curated a test dataset comprising 250 million tokens, mirroring the same composition. The selection criteria ensured that the average n-gram similarity (for n=2, 3, 4) with the training set is below 10%. This threshold effectively excludes all QA and Summarization data, resulting in a test corpus where the distribution of tokens across Book, Arxiv, General, and Code categories follows a ratio of 4:2:2:1, respectively.
+
 
 ## Training
-To customize the long-context LLaMA-2 with CLEX on your own data, run the script `scripts/train_lm.sh` as follows:
+
+To train the long-context LLM with CLEX, run the script `scripts/train_lm.sh` as follows:
 ```bash
 ./scripts/train_lm.sh
 ```
 For training the chat model, run the script `scripts/train_chat.sh` instead.
+
+Note that we use a on-the-fly tokenization, which supports any desired training length without pre-tokenizing. So if you use a learning rate scheduler (e.g., cosine), you may need to specify the arg `max_steps` in the training arguments (You can estimate it depending on training data size).
+
+## Customization
+We now support LLaMA-2, Phi-2, and Mixtral-8x7B. If you want to customize your LLM equpped with RoPE, please follow three steps:
+1. 
+
 
 ## Evaluation
 ### Language Modelling
@@ -111,9 +128,25 @@ Here are the evaluation PPLs of the base models trained with CLEX. We apply trai
 | CL-Scaling | 16k | 24.99 | 5.86 | 5.87 | 10.56 | 41.09 |
 | ALIBI | 4k  | 6.34 | 6.39 | 6.41 | 6.5 | 6.51 |
 | RandomPos | 4k  | 5.88 | >100 | >1000 | >1000 | >1000 |
-| CLEX-7B-4K | 4k  | 5.86 | 5.7 | 5.87 | 14.53 | 30.51 |
-| CLEX-7B-16K | 16k | 5.88 | 5.68 | 5.52 | 5.55 | 5.64 |
-| CLEX-13B-4k | 4k  | 5.43 | 5.31 | 5.34 | 6.40 | 12.15 |
+| CLEX-LLaMA-2-7B-4K | 4k  | 5.86 | 5.7 | 5.87 | 14.53 | 30.51 |
+| CLEX-LLaMA-2-7B-16K | 16k | 5.88 | 5.68 | 5.52 | 5.55 | 5.64 |
+| CLEX-LLaMA-2-13B-4k | 4k  | 5.43 | 5.31 | 5.34 | 6.40 | 12.15 |
+
+
+|                 | Train Length | Eval.(32k) | Eval.(64k) | Eval.(128k) | Eval.(256k) |
+| --------------- | ------------ | ---------- | ---------- | ----------- | ----------- |
+| CLEX-LLaMA-2-7B | 64k          | 5.99       | 5.89       | 6.04        | 5.98        |
+
+
+
+The CLEX-Phi-2-2.7B and CLEX-Mixtral-8x7B are trained on [LongCorpus-2.5B](https://huggingface.co/datasets/DAMO-NLP-SG/LongCorpus-2.5B), where the eval results on test set are listed below.
+
+|                   | Train Length | Eval.(32k) | Eval.(64k) | Eval.(128k) | Eval.(256k) |
+| ----------------- | ------------ | ---------- | ---------- | ----------- | ----------- |
+| Phi-2-2.7B        | 2k           | >100       | >100       | >100        | >100        |
+| Mixtral-8x7B      | 32k          | 2.78       | 3.44       | 5.88        | 14.20       |
+| CLEX-Phi-2-2.7B   | 32k          | 5.96       | 6.07       | 7.46        | -           |
+| CLEX-Mixtral-8x7B | 32k          | 2.56       | 2.53       | 2.57        | 3.78        |
 
 
 
@@ -135,6 +168,29 @@ We evaluate the chat models trained with CLEX on the [LongBench](https://github.
 | CLEX-7B-Chat-4K         | 4k           | 32.72 | 29.38              | 20.08             | 23.25         | 56.02             | 9.67          | 57.94           |
 
 
+## InfiniteBench
+We also evaluate CLEX-Mixtral-8x7B-Chat-32k on [InfiniteBench](https://github.com/OpenBMB/InfiniteBench), which is a 128k-length benchmark covering various tasks. We compare our CLEX-Mixtral-8x7B-Chat-32k with GPT-4, Claude, KimiChat, and vanilla Mixtral-8x7B.
+
+| Task Name           | GPT-4  | YaRN-Mistral-7B | Kimi-Chat | Claude 2 | CLEX-Mixtral-8x7B-Chat-32k | Mixtral-8x7B-Instruct-v0.1 |
+| ------------------- | ------ | --------------- | --------- | -------- | -------------------------- | -------------------------- |
+| Retrieve.PassKey    | 100%   | 92.71%          | 98.14%    | 97.80%   | 99.72%                     | 96.78%                     |
+| **Retrieve.Number** | 100%   | 56.61%          | 95.42%    | 98.14%   | 76.10%                     | 76.61%                     |
+| **Retrieve.KV**     | 89.00% | < 5%            | 53.60%    | 65.40%   | <5%                        | <%5                        |
+| En.Sum              | 14.73% | 9.09%           | 17.93%    | 14.45%   | 15.48%                     | 14.3%                      |
+| En.QA               | 22.22% | 9.55%           | 16.52%    | 11.97%   | 15.52%                     | 16.81%                     |
+| En.MC               | 67.25% | 27.95%          | 72.49%    | 62.88%   | 58.96%                     | 56.77%                     |
+| En.Dia              | 8.50%  | 7.50%           | 11.50%    | 46.50%   | 9%                         | <5%                        |
+| Code.Debug          | 39.59% | < 5%            | 18.02%    | < 5%     | 21.32%                     | <5%                        |
+| Code.Run            | 23.25% | < 5%            | < 5%      | < 5%     | < 5%                       | <5%                        |
+| Math.Calc           | < 5%   | < 5%            | < 5%      | < 5%     | < 5%                       | <5%                        |
+| Math.Find           | 60.00% | 17.14%          | 12.57%    | 32.29%   | 28%                        | 26.57%                     |
+
+Key points:
+- We found Mixtral-8x7B-Instruct-v0.1 has some extrapolation ability, by setting the `rope_theta` as 1e6 following CodeLLaMA.
+- Our CLEX-Mixtral-8x7B-Chat-32k is also trained on 32k but perform better than vanilla Mixtral-8x7B-Instruct-v0.1 on most tasks. 
+- Note that we only apply a "toy" SFT on Ultrachat 200K for one epoch, so the many bad cases of our model may be caused by the unsolid instuction-following ability (verbose or incomplete answers). The performance may hold great potential to be improved.
+
+
 ## Acknowledgement
 We would like to express our gratitude to the following open-sourcing efforts our CLEX benefits from:
 - [LLaMA-2](https://github.com/facebookresearch/llama): Open Foundation and Fine-Tuned Chat Models
@@ -143,6 +199,7 @@ We would like to express our gratitude to the following open-sourcing efforts ou
 - [Pile](https://pile.eleuther.ai/): An 800GB Dataset of Diverse Text for Language Modeling
 - [PG-19](https://openreview.net/pdf?id=SylKikSYDH): Language Modeling Language Modeling Benchmark
 - [UltraChat](https://github.com/thunlp/UltraChat): Large-scale, Informative, and Diverse Multi-round Dialogue Data, and Models
+- [InfiniteBench](https://github.com/OpenBMB/InfiniteBench): 100k+ Long-Context Benchmark for Large Language Models
 
 ## Citation
 If you find our project useful, hope you can star our repo and cite our paper as follows:

@@ -52,7 +52,7 @@ from transformers.utils import (
 )
 from transformers.utils.import_utils import is_torch_fx_available
 from .configuration_mixtral_clex import MixtralConfig
-from ..clex_layer import LlamaCLEXScalingRotaryEmbedding
+from ..clex_layer import CLEXScalingRotaryEmbedding
 
 if is_flash_attn_2_available():
     from flash_attn import flash_attn_func, flash_attn_varlen_func
@@ -1040,7 +1040,7 @@ class MixtralPreTrainedModel(PreTrainedModel):
     config_class = MixtralConfig
     base_model_prefix = "model"
     supports_gradient_checkpointing = True
-    _no_split_modules = ["MixtralDecoderLayer", "LlamaCLEXScalingRotaryEmbedding"]
+    _no_split_modules = ["MixtralDecoderLayer", "CLEXScalingRotaryEmbedding"]
     _skip_keys_device_placement = "past_key_values"
     _supports_flash_attn_2 = True
     _supports_sdpa = True
@@ -1153,7 +1153,7 @@ class MixtralModel(MixtralPreTrainedModel):
         self.gradient_checkpointing = False
         head_dim = config.hidden_size // config.num_attention_heads
         if config.rope_scaling["type"] == "clex":
-            self.clex_layer = LlamaCLEXScalingRotaryEmbedding(head_dim, config.max_position_embeddings, config.rope_scaling)
+            self.clex_layer = CLEXScalingRotaryEmbedding(head_dim, config.max_position_embeddings, config.rope_scaling)
 
         # Initialize weights and apply final processing
         self.post_init()

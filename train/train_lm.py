@@ -35,7 +35,7 @@ def get_model_config_class(model_name_or_path):
         return CLEXLlamaConfig, LlamaForCausalLM
     elif "mixtral" in model_name_or_path.lower():
         return CLEXMixtralConfig, MixtralForCausalLM
-    elif "phi2" in model_name_or_path.lower():
+    elif "phi" in model_name_or_path.lower():
         return CLEXPhiConfig, PhiForCausalLM
     else:
         raise ValueError(f"Unknown model class from the path: {model_name_or_path}")

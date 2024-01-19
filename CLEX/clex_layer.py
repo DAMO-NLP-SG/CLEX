@@ -58,7 +58,7 @@ class ODELinear(nn.Module):
 
 
 
-class LlamaCLEXScalingRotaryEmbedding(nn.Module):
+class CLEXScalingRotaryEmbedding(nn.Module):
 
     def __init__(self, dim, max_position_embeddings=2048, rope_scaling=None, base=1000000, device=None) -> None:
         super().__init__()

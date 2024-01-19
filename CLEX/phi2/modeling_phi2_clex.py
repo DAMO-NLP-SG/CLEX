@@ -45,7 +45,7 @@ from transformers.utils import (
     replace_return_docstrings,
 )
 from .configuration_phi2_clex import CLEXPhiConfig
-from ..clex_layer import LlamaCLEXScalingRotaryEmbedding
+from ..clex_layer import CLEXScalingRotaryEmbedding
 
 try:
     from flash_attn import flash_attn_func, flash_attn_varlen_func
@@ -750,7 +750,7 @@ class PhiPreTrainedModel(PreTrainedModel):
     config_class = CLEXPhiConfig
     base_model_prefix = "model"
     supports_gradient_checkpointing = True
-    _no_split_modules = ["PhiDecoderLayer", "LlamaCLEXScalingRotaryEmbedding"]
+    _no_split_modules = ["PhiDecoderLayer", "CLEXScalingRotaryEmbedding"]
     _skip_keys_device_placement = "past_key_values"
     _supports_flash_attn_2 = True
     _supports_cache_class = True
@@ -867,7 +867,7 @@ class PhiModel(PhiPreTrainedModel):
         head_dim = config.hidden_size // config.num_attention_heads
         if config.rope_scaling["type"] == "clex":
             rope_dim = int(config.partial_rotary_factor * head_dim)
-            self.clex_layer = LlamaCLEXScalingRotaryEmbedding(rope_dim, config.max_position_embeddings, config.rope_scaling)
+            self.clex_layer = CLEXScalingRotaryEmbedding(rope_dim, config.max_position_embeddings, config.rope_scaling)
 
         self.post_init()
 
