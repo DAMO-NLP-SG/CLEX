@@ -110,9 +110,9 @@ Note that we use an on-the-fly tokenization, which supports any desired training
 
 ## Customization
 We now support LLaMA-2, Phi-2, and Mixtral-8x7B. If you want to customize your LLM equipped with RoPE, please follow three steps:
-1. Init the CLEX layer and acquire the packed cos and sin embeddings of CLEX-scaled RoPE.
+1. [Init](https://github.com/DAMO-NLP-SG/CLEX/blob/f9adf565a90459644c1cd61a55e23cc631ac940e/CLEX/llama/modeling_llama_clex.py#L1027) the CLEX layer and acquire the packed [cos and sin embeddings](https://github.com/DAMO-NLP-SG/CLEX/blob/f9adf565a90459644c1cd61a55e23cc631ac940e/CLEX/llama/modeling_llama_clex.py#L1118) of CLEX-scaled RoPE.
 2. Pass the cos and sin embeddings to the attention layer.
-3. Move the update of `past_key_value` **before** applying the RoPE. This ensures all keys would be rotated by the same cos and sin embedding.
+3. [Move](https://github.com/DAMO-NLP-SG/CLEX/blob/f9adf565a90459644c1cd61a55e23cc631ac940e/CLEX/llama/modeling_llama_clex.py#L426) the update of `past_key_value` **before** applying the RoPE. This ensures all keys would be rotated by the same cos and sin embeddings.
 
 
 ## Evaluation
