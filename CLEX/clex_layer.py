@@ -49,7 +49,7 @@ class ODELinear(nn.Module):
     def forward(self, t, x: torch.Tensor):
 
         device = x.device
-        delta_time, time = self.get_time_embedding(t.to(device), base=self.base, device=device, dtype=x.dtype)
+        delta_time, time = self.get_time_embedding(t.to(device), device=device, dtype=x.dtype)
         x = x + torch.log(time)
         time_embed = delta_time / time
         delta_inv_freq = self.act(x @ self.ode_up_proj.float()) @ self.ode_down_proj.float()
