@@ -867,7 +867,7 @@ class PhiModel(PhiPreTrainedModel):
         head_dim = config.hidden_size // config.num_attention_heads
         if config.rope_scaling["type"] == "clex":
             rope_dim = int(config.partial_rotary_factor * head_dim)
-            self.clex_layer = CLEXScalingRotaryEmbedding(rope_dim, config.max_position_embeddings, config.rope_scaling)
+            self.clex_layer = CLEXScalingRotaryEmbedding(rope_dim, config.max_position_embeddings, config.rope_scaling, config.rope_theta)
 
         self.post_init()
 

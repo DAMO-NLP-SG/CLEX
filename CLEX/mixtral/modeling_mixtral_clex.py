@@ -1153,7 +1153,7 @@ class MixtralModel(MixtralPreTrainedModel):
         self.gradient_checkpointing = False
         head_dim = config.hidden_size // config.num_attention_heads
         if config.rope_scaling["type"] == "clex":
-            self.clex_layer = CLEXScalingRotaryEmbedding(head_dim, config.max_position_embeddings, config.rope_scaling)
+            self.clex_layer = CLEXScalingRotaryEmbedding(head_dim, config.max_position_embeddings, config.rope_scaling, config.rope_theta)
 
         # Initialize weights and apply final processing
         self.post_init()

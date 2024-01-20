@@ -1024,7 +1024,7 @@ class LlamaModel(LlamaPreTrainedModel):
         self.post_init()
         head_dim = config.hidden_size // config.num_attention_heads
         if config.rope_scaling["type"] == "clex":
-            self.clex_layer = CLEXScalingRotaryEmbedding(head_dim, config.max_position_embeddings, config.rope_scaling)
+            self.clex_layer = CLEXScalingRotaryEmbedding(head_dim, config.max_position_embeddings, config.rope_scaling, config.rope_theta)
 
 
     def get_input_embeddings(self):

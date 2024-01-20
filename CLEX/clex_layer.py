@@ -15,12 +15,14 @@ class ODELinear(nn.Module):
         dim: int, 
         factor,
         act,
+        base=10000,
         **kwargs
     ):
         super().__init__()
         self.ode_up_proj = nn.Parameter(torch.empty(dim//2, factor*dim))
         self.ode_down_proj = nn.Parameter(torch.empty(factor*dim, dim//2))
         self.dim = dim
+        self.base = base
         if act == "tanh":
             self.act = torch.nn.Tanh()
         elif act == "silu":
@@ -47,7 +49,7 @@ class ODELinear(nn.Module):
     def forward(self, t, x: torch.Tensor):
 
         device = x.device
-        delta_time, time = self.get_time_embedding(t.to(device), device=device, dtype=x.dtype)
+        delta_time, time = self.get_time_embedding(t.to(device), base=self.base, device=device, dtype=x.dtype)
         x = x + torch.log(time)
         time_embed = delta_time / time
         delta_inv_freq = self.act(x @ self.ode_up_proj.float()) @ self.ode_down_proj.float()
@@ -60,7 +62,7 @@ class ODELinear(nn.Module):
 
 class CLEXScalingRotaryEmbedding(nn.Module):
 
-    def __init__(self, dim, max_position_embeddings=2048, rope_scaling=None, base=1000000, device=None) -> None:
+    def __init__(self, dim, max_position_embeddings=2048, rope_scaling=None, base=10000, device=None) -> None:
         super().__init__()
 
         self.max_t = rope_scaling["max_factor"]
@@ -70,7 +72,7 @@ class CLEXScalingRotaryEmbedding(nn.Module):
         inv_freq = 1.0 / (self.base ** (torch.arange(0, self.dim, 2).float().to(device) / self.dim))
         self.register_buffer("inv_freq", inv_freq)
 
-        self.proj_func = ODELinear(dim, rope_scaling["param_factor"], rope_scaling["act"])
+        self.proj_func = ODELinear(dim, rope_scaling["param_factor"], rope_scaling["act"], base)
         self.rope_cached = None
         self.max_t_cached = 0
         self.freq_cached = None
