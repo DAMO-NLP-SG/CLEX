@@ -377,10 +377,6 @@ class PhiAttention(nn.Module):
         query_states = torch.cat((query_rot, query_pass), dim=-1)
         key_states = torch.cat((key_rot, key_pass), dim=-1)
 
-        if past_key_value is not None:
-            cache_kwargs = {"sin": sin, "cos": cos, "partial_rotation_size": self.rotary_emb.dim}
-            key_states, value_states = past_key_value.update(key_states, value_states, self.layer_idx, cache_kwargs)
-
         key_states = repeat_kv(key_states, self.num_key_value_groups)
         value_states = repeat_kv(value_states, self.num_key_value_groups)
 
@@ -663,7 +659,7 @@ PHI_ATTENTION_CLASSES = {
 class PhiDecoderLayer(nn.Module):
     def __init__(self, config: CLEXPhiConfig, layer_idx: int):
         super().__init__()
-        self.self_attn = PhiFlashAttention2(config, layer_idx=layer_idx)
+        self.self_attn = PHI_ATTENTION_CLASSES[config._attn_implementation](config, layer_idx=layer_idx)
         self.mlp = PhiMLP(config)
         self.input_layernorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
         self.resid_dropout = nn.Dropout(config.resid_pdrop)
