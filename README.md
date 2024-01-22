@@ -66,7 +66,7 @@ import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
 
 tokenizer = AutoTokenizer.from_pretrained("DAMO-NLP-SG/CLEX-7B-16K", trust_remote_code=True)
-model = AutoModelForCausalLM.from_pretrained("DAMO-NLP-SG/CLEX-7B-16K", torch_dtype=torch.bfloat16)
+model = AutoModelForCausalLM.from_pretrained("DAMO-NLP-SG/CLEX-7B-16K", torch_dtype=torch.bfloat16, trust_remote_code=True, use_flash_attention_2=True)
 inputs = tokenizer("What is CLEX?", return_tensors="pt")
 sample = model.generate(**inputs, max_length=128)
 print(tokenizer.decode(sample[0]))
