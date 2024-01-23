@@ -151,8 +151,8 @@ The CLEX-Phi-2-2.7B and CLEX-Mixtral-8x7B are trained on [LongCorpus-2.5B](https
 |                   | Train Length | Eval.(32k) | Eval.(64k) | Eval.(128k) | Eval.(256k) |
 | ----------------- | ------------ | ---------- | ---------- | ----------- | ----------- |
 | Phi-2-2.7B        | 2k           | >100       | >100       | >100        | >100        |
-| Mixtral-8x7B      | 32k          | 2.78       | 3.44       | 5.88        | 14.20       |
 | CLEX-Phi-2-2.7B   | 32k          | 5.11       | 5.17       | 6.55        | -           |
+| Mixtral-8x7B      | 32k          | 2.78       | 3.44       | 5.88        | 14.20       |
 | CLEX-Mixtral-8x7B | 32k          | 2.56       | 2.53       | 2.57        | 3.78        |
 
 
