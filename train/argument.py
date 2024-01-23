@@ -29,6 +29,12 @@ class ModelArguments:
             "help": "The activation function."
         },
     )
+    time_dt: float = field(
+        default=0.01,
+        metadata={
+            "help": "The ODE up projection factor."
+        },
+    )
 
 
 

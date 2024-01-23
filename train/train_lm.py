@@ -75,7 +75,8 @@ def build_clex_args(config, model_args):
         "max_factor": model_args.max_factor,
         "param_factor": model_args.param_factor,
         "act": model_args.clex_act,
-        "factor": 1
+        "factor": 1,
+        "time_dt": model_args.time_dt
     }
     
 
