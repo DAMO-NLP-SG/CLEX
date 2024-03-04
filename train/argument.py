@@ -24,9 +24,9 @@ class ModelArguments:
     )
     clex_act: str = field(
         default="tanh",
-        choices=["tanh", "silu"],
         metadata={
-            "help": "The activation function."
+            "help": "The activation function.",
+            "choices": ["tanh", "silu"],
         },
     )
     time_dt: float = field(
